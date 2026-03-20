@@ -1,5 +1,4 @@
 import React from "react";
-
 export default function SelectCampus({ campuses, selectedCampusId, setCampus, isLoading }) {
   if (isLoading) {
     return <p className="helper-text">Loading campuses...</p>;
