@@ -1,0 +1,103 @@
+// ===============================
+// DATABASE CONNECTION
+// ===============================
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ===============================
+// CAMPUS MODEL
+// ===============================
+model Campus {
+  id        String   @id @default(uuid())
+  name      String
+  domain    String   @unique
+  users     User[]
+  vendors   Vendor[]
+  createdAt DateTime @default(now())
+}
+
+// ===============================
+// USER MODEL (AUTH)
+// ===============================
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  campusId  String
+  campus    Campus  @relation(fields: [campusId], references: [id])
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+// ===============================
+// VENDOR MODEL
+// ===============================
+model Vendor {
+  id        String   @id @default(uuid())
+  name      String
+  campusId  String
+  campus    Campus  @relation(fields: [campusId], references: [id])
+  menus     Menu[]
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+// ===============================
+// MENU MODEL
+// ===============================
+model Menu {
+  id        String   @id @default(uuid())
+  name      String
+  price     Float
+  isActive  Boolean  @default(true)
+  vendorId  String
+  vendor    Vendor  @relation(fields: [vendorId], references: [id])
+}
+
+// ===============================
+// ORDER MODEL
+// ===============================
+model Order {
+  id        String       @id @default(uuid())
+  userId    String
+  vendorId  String
+  campusId  String
+  status    OrderStatus
+  total     Float
+  user      User         @relation(fields: [userId], references: [id])
+  vendor    Vendor       @relation(fields: [vendorId], references: [id])
+  items     OrderItem[]
+  createdAt DateTime     @default(now())
+}
+
+// ===============================
+// ORDER ITEM MODEL
+// ===============================
+model OrderItem {
+  id      String  @id @default(uuid())
+  name    String
+  price   Float
+  qty     Int
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+}
+
+// ===============================
+// ENUMS
+// ===============================
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  CREATED
+}
